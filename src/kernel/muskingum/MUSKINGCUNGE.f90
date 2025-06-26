@@ -65,7 +65,7 @@ subroutine submuskingcunge(    &
         aerror = 0.01
         rerror = 1.0
         tries = 0
-
+        print *, "Hello"
 !-------------  locals
         if(Cs .eq. 0.00000000) then
          z = 1.0
@@ -87,7 +87,7 @@ subroutine submuskingcunge(    &
           print*, "Error in channel coefficients -> Muskingum cunge", n, So, z, Bw
           !call hydro_stop("In MUSKINGCUNGE() - Error in channel coefficients")
         end if
-
+        
 !-------------  Secant Method
         depthc = max(depthp, 0.0)
         h     = (depthc * 1.33) + mindepth !1.50 of  depth

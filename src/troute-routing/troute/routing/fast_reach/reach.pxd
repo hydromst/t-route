@@ -6,7 +6,6 @@ cdef struct QVD:
     float ck
     float X
 
-
 cdef void muskingcunge(float dt,
         float qup,
         float quc,

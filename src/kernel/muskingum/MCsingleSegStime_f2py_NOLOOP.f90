@@ -1,8 +1,7 @@
 module muskingcunge_module
 
     use precis
-    implicit none
-
+    implicit none 
 contains
 
 subroutine muskingcungenwm(dt, qup, quc, qdp, ql, dx, bw, tw, twcc,&
@@ -33,11 +32,11 @@ subroutine muskingcungenwm(dt, qup, quc, qdp, ql, dx, bw, tw, twcc,&
     integer :: maxiter, tries
     real(prec) :: mindepth, aerror, rerror
     real(prec) :: R, twl, h_1, h, h_0, Qj, Qj_0
+    real(prec) :: Km ! <-- Added
 
     ! qdc = 0.0
     ! velc = velp
     ! depthc = depthp
-
     !* parameters of Secant method
     maxiter  = 100
     mindepth = 0.01_prec
@@ -59,8 +58,8 @@ subroutine muskingcungenwm(dt, qup, quc, qdp, ql, dx, bw, tw, twcc,&
     else
         bfd =  (tw - bw)/(2.0_prec*z)  !bankfull depth (m)
     endif
-
     !print *, bfd
+
     if (n .le. 0.0_prec .or. s0 .le. 0.0_prec .or. z .le. 0.0_prec .or. bw .le. 0.0_prec) then
         !print*, "Error in channel coefficients -> Muskingum cunge", n, s0, z, bw
         !call hydro_stop("In MUSKINGCUNGE() - Error in channel coefficients")
@@ -90,9 +89,9 @@ subroutine muskingcungenwm(dt, qup, quc, qdp, ql, dx, bw, tw, twcc,&
 
             !Uncomment next four lines for new initialization
             call secant2_h(z, bw, bfd, twcc, s0, n, ncc, dt, dx, &
-                qdp, ql, qup, quc, h_0, 1, Qj_0, C1, C2, C3, C4, X)
+                qdp, ql, qup, quc, h_0, 1, Qj_0, C1, C2, C3, C4, X, Km)
             call secant2_h(z, bw, bfd, twcc, s0, n, ncc, dt, dx, &
-                qdp, ql, qup, quc, h, 2, Qj, C1, C2, C3, C4, X)
+                qdp, ql, qup, quc, h, 2, Qj, C1, C2, C3, C4, X, Km)
 
             if(Qj_0-Qj .ne. 0.0_prec) then
                 h_1 = h - ((Qj * (h_0 - h))/(Qj_0 - Qj)) !update h, 3rd estimate
@@ -182,6 +181,8 @@ subroutine muskingcungenwm(dt, qup, quc, qdp, ql, dx, bw, tw, twcc,&
     ! *************************************************************
     call courant(h, bfd, bw, twcc, ncc, s0, n, z, dx, dt, ck, cn)
     !print*, "deep down", depthc
+    !print *, "DEBUG: timestep = ", dt, " qdc =", qdc, "ql =", ql, "C1 =", C1, "qup =", qup, "C2 =", C2, "quc =", quc, "C3 =", C3, "qdp =", qdp, "C4 =", C4
+    print *, "DEBUG: timestep = ", dt, "ql =", ql, "C1 =", C1, "C2 =", C2, "C3 =", C3, "C4 =", C4, "X =", X, "Km =", Km
 
 end subroutine muskingcungenwm
 
@@ -196,7 +197,7 @@ end subroutine muskingcungenwm
 
 !Uncomment this function signature for new initialization
 subroutine secant2_h(z, bw, bfd, twcc, s0, n, ncc, dt, dx, &
-    qdp, ql, qup, quc, h, interval, Qj, C1, C2, C3, C4, X)
+    qdp, ql, qup, quc, h, interval, Qj, C1, C2, C3, C4, X, Km)
 
     implicit none
 
@@ -204,11 +205,11 @@ subroutine secant2_h(z, bw, bfd, twcc, s0, n, ncc, dt, dx, &
     real(prec), intent(in) :: dt, dx
     real(prec), intent(in) :: qdp, ql, qup, quc
     real(prec), intent(in) :: h
-    real(prec), intent(out) :: Qj, C1, C2, C3, C4, X
+    real(prec), intent(out) :: Qj, C1, C2, C3, C4, X, Km
     integer,    intent(in) :: interval
 
     real(prec) :: twl, AREA, WP, R
-    real(prec) :: Ck, Cn, Km, D
+    real(prec) :: Ck, Cn, D
     integer    :: upper_interval, lower_interval
 
     !Uncomment for old initialization
@@ -442,6 +443,5 @@ subroutine hydraulic_geometry(h, bfd, bw, twcc, z, &
     endif
 
 end subroutine hydraulic_geometry
-
 
 end module muskingcunge_module

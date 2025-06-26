@@ -753,8 +753,8 @@ class HYFeaturesNetwork(AbstractNetwork):
                 nexuses_lateralflows_df = pd.concat(dfs, axis=1) 
             
             # Take flowpath ids entering NEXUS and replace NEXUS ids by the upstream flowpath ids
-            qlats_df = nexuses_lateralflows_df.rename(index=self.downstream_flowpath_dict)
-            qlats_df = qlats_df[qlats_df.index.isin(self.segment_index)]
+            #qlats_df = nexuses_lateralflows_df.rename(index=self.downstream_flowpath_dict)
+            qlats_df = nexuses_lateralflows_df[nexuses_lateralflows_df.index.isin(self.segment_index)]
 
             '''
             #For a terminal nexus, we want to include the lateral flow from the catchment contributing to that nexus
@@ -788,8 +788,7 @@ class HYFeaturesNetwork(AbstractNetwork):
             # that are not accounted for in the set of flowpaths downstream of
             # nexuses need to be added to the qlateral dataframe and padded with
             # zeros.
-            all_df = pd.DataFrame( np.zeros( (len(self.segment_index), len(qlats_df.columns)) ), index=self.segment_index,
-                columns=qlats_df.columns )
+            all_df = pd.DataFrame( np.zeros( (len(self.segment_index), len(qlats_df.columns)) ), index=self.segment_index, columns=qlats_df.columns )
             all_df.loc[ qlats_df.index ] = qlats_df
             qlats_df = all_df.sort_index()
 
